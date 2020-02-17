@@ -1,6 +1,8 @@
 #!/usr/bin/env dash
+count=0
 while [ true ]; do
-  date
+  count=$((count + 1))
+  echo "$count >> "
   sleep 1
 done
 

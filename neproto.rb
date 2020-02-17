@@ -34,6 +34,7 @@ class Neproto
     @console = console
     @pending_command_line = ""
     @pending_prompt = ""
+    @prompt = "(no prompt) "
   end
 
   def run
@@ -54,7 +55,7 @@ class Neproto
         lines = pending_prompt.lines
         @pending_prompt = lines.last
         if lines.size >= 2
-          set_prompt(lines[-2])
+          self.prompt = lines[-2]
         end
       end
     rescue IO::WaitReadable
@@ -78,17 +79,31 @@ class Neproto
       console.write(' ')
       console.cursor_left(1)
     else
+      @pending_command_line += char
       console.write(char)
     end
   end
 
-  def set_prompt(prompt)
+  def prompt=(new_prompt)
+    @prompt = new_prompt.rstrip
+    carriage_return
+    clear_line
+    console.write(prompt)
+    console.write(pending_command_line)
     # console.write("Set prompt: #{prompt}\r\n")
   end
 
   private
 
-  attr_reader :console, :pending_command_line, :pending_prompt
+  attr_reader :console, :prompt, :pending_command_line, :pending_prompt
+
+  def clear_line
+    console.erase_line(ERASE_ENTIRE)
+  end
+
+  def carriage_return
+    console.write("\r")
+  end
 end
 
 Neproto.claim do |instance|
